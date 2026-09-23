@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Segmenta AI — Bid Floor Optimisation Without an SDK | Mobile Apps &amp; Games</title>
+<meta name="description" content="Increase ad revenue from your mobile game without integrating an SDK. Segmenta segments players into eCPM value buckets and optimises bid floors through your mediator's API. Live in a day.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EEF1EA;
+  --paper-2:#E4E8DE;
+  --ink:#111A16;
+  --ink-2:#1A241F;
+  --muted:#56655C;
+  --line:#CBD3C5;
+  --bar:#3B564A;
+  --floor:#D6246E;
+  --floor-tint:rgba(214,36,110,.10);
+  --maxw:1180px;
+  --display:"Archivo",system-ui,sans-serif;
+  --body:"Instrument Sans",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--body);font-size:17px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+img,svg{display:block;max-width:100%}
+a{color:inherit}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+
+/* ---------- type ---------- */
+h1,h2,h3{
+  font-family:var(--display);font-variation-settings:"wdth" 112,"wght" 700;
+  margin:0;line-height:.98;letter-spacing:-.03em;
+}
+h1{font-size:clamp(2.7rem,6.6vw,5rem)}
+h2{font-size:clamp(1.95rem,4vw,3.05rem)}
+h3{font-size:1.12rem;letter-spacing:-.015em;line-height:1.25;font-variation-settings:"wdth" 106,"wght" 700}
+p{margin:0 0 1em}
+.eyebrow{
+  font-family:var(--mono);font-size:.68rem;font-weight:500;
+  text-transform:uppercase;letter-spacing:.2em;color:var(--muted);
+  margin:0 0 20px;display:flex;align-items:center;gap:10px;
+}
+.eyebrow::before{content:"";width:20px;height:2px;background:var(--floor);flex:none}
+.lede{font-size:clamp(1.05rem,1.7vw,1.25rem);color:var(--muted);max-width:60ch}
+.mono{font-family:var(--mono)}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:9px;
+  font-family:var(--body);font-size:.94rem;font-weight:600;
+  padding:14px 22px;border-radius:2px;text-decoration:none;
+  border:1.5px solid var(--ink);transition:transform .16s ease,background .16s ease,color .16s ease;
+}
+.btn-primary{background:var(--ink);color:var(--paper)}
+.btn-primary:hover{background:var(--floor);border-color:var(--floor);transform:translateY(-2px)}
+.btn-ghost{background:transparent;color:var(--ink)}
+.btn-ghost:hover{background:var(--ink);color:var(--paper);transform:translateY(-2px)}
+.btn-pink{background:var(--floor);border-color:var(--floor);color:#fff}
+.btn-pink:hover{background:var(--ink);border-color:var(--ink);color:var(--paper);transform:translateY(-2px)}
+.btn-arrow{font-family:var(--mono);font-size:1.05em;line-height:1}
+:focus-visible{outline:2.5px solid var(--floor);outline-offset:3px}
+
+/* ---------- nav ---------- */
+header{
+  position:sticky;top:0;z-index:50;background:rgba(238,241,234,.9);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+}
+.nav{display:flex;align-items:center;gap:34px;height:66px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;margin-right:auto}
+.logo-mark{display:block}
+.logo-text{
+  font-family:var(--display);font-variation-settings:"wdth" 118,"wght" 800;
+  font-size:1.05rem;letter-spacing:.01em;
+}
+.nav-links{display:flex;gap:26px}
+.nav-links a{
+  text-decoration:none;font-size:.9rem;font-weight:500;color:var(--muted);
+  padding:4px 0;border-bottom:1.5px solid transparent;transition:color .15s,border-color .15s;
+}
+.nav-links a:hover{color:var(--ink);border-bottom-color:var(--floor)}
+.nav .btn{padding:10px 17px;font-size:.86rem}
+@media(max-width:860px){.nav-links{display:none}}
+
+/* ---------- hero ---------- */
+.hero{padding:100px 0 8px}
+.hero h1{max-width:15ch}
+.hero .lede{margin-top:26px;font-size:clamp(1.08rem,1.8vw,1.3rem);color:var(--ink-2);opacity:.82}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:36px}
+.trust{
+  margin-top:34px;padding-top:20px;border-top:1px solid var(--line);
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.04em;color:var(--muted);
+  display:flex;flex-wrap:wrap;gap:8px 20px;
+}
+
+/* ---------- signature chart ---------- */
+.ladder{padding:56px 0 96px}
+.ladder-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:22px}
+.ladder-title{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.18em;color:var(--muted)}
+.toggle{display:inline-flex;border:1.5px solid var(--ink);border-radius:2px;overflow:hidden}
+.toggle button{
+  font-family:var(--body);font-size:.86rem;font-weight:600;
+  padding:11px 18px;background:transparent;color:var(--ink);
+  border:0;cursor:pointer;transition:background .18s,color .18s;
+}
+.toggle button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.toggle button:first-child{border-right:1.5px solid var(--ink)}
+.chart-frame{border:1px solid var(--line);background:var(--paper-2);padding:22px 18px 12px}
+.chart svg{width:100%;height:auto}
+.bar{fill:var(--bar);opacity:.28;transform-origin:center bottom;transition:opacity .2s}
+.bar-g:hover .bar{opacity:.5}
+.floor-seg{fill:var(--floor);transition:y .55s cubic-bezier(.6,.05,.2,1)}
+.axis-label{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+.axis-tick{stroke:var(--line);stroke-width:1}
+.readout{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+  background:var(--line);border:1px solid var(--line);border-top:0;
+}
+.stat{background:var(--paper-2);padding:20px 18px}
+.stat-k{font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+.stat-v{
+  font-family:var(--display);font-variation-settings:"wdth" 108,"wght" 700;
+  font-size:2rem;letter-spacing:-.03em;margin-top:6px;font-variant-numeric:tabular-nums;
+}
+.stat-d{font-family:var(--mono);font-size:.74rem;margin-top:2px;color:var(--muted)}
+.stat-d.up{color:var(--floor)}
+.caption{font-family:var(--mono);font-size:.7rem;color:var(--muted);margin-top:12px;letter-spacing:.03em}
+
+/* ---------- sections ---------- */
+section{padding:88px 0}
+.sec-head{max-width:52ch;margin-bottom:52px}
+.sec-head h2{margin-bottom:20px}
+.rule{border:0;border-top:1px solid var(--line);margin:0}
+
+/* problem */
+.cols-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.cell{background:var(--paper);padding:32px 26px}
+.cell h3{margin-bottom:12px}
+.cell p{color:var(--muted);font-size:.96rem;margin:0}
+
+/* ---------- diagram ---------- */
+.diagram-fig{margin:0;border:1px solid var(--line);background:var(--paper-2);padding:20px}
+.diagram-img{width:100%;height:auto}
+
+.step-note{
+  margin-top:46px;padding:26px 30px;border-left:3px solid var(--floor);background:var(--paper-2);
+  font-size:1.05rem;max-width:70ch;
+}
+.step-note p{margin:0}
+
+/* dark band */
+.band{background:var(--ink);color:var(--paper)}
+.band h2,.band h3{color:var(--paper)}
+.band .eyebrow{color:rgba(238,241,234,.55)}
+.band .lede{color:rgba(238,241,234,.7)}
+.band .cols-2{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:rgba(238,241,234,.14);border:1px solid rgba(238,241,234,.14)}
+.band .cell{background:var(--ink);padding:36px 32px}
+.band .cell p{color:rgba(238,241,234,.66)}
+.band .cell h3{margin-bottom:14px}
+
+/* compare */
+.table-scroll{overflow-x:auto;border:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;min-width:640px;background:var(--paper)}
+th,td{text-align:left;padding:16px 18px;border-bottom:1px solid var(--line);font-size:.93rem}
+thead th{
+  font-family:var(--mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.13em;
+  color:var(--muted);font-weight:500;background:var(--paper-2);
+}
+tbody th{font-weight:600;color:var(--ink);width:30%}
+.col-us{background:var(--floor-tint);font-weight:600}
+thead .col-us{background:var(--floor);color:#fff;letter-spacing:.13em}
+tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
+
+
+/* team */
+.bios{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.bio{background:var(--paper);padding:34px 30px;border-top:3px solid var(--floor)}
+.bio h3{font-size:1.45rem;margin-bottom:6px}
+.bio-role{font-family:var(--mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.16em;color:var(--muted);margin-bottom:18px}
+.bio p{color:var(--muted);font-size:.96rem;margin:0}
+
+/* faq */
+details{border-bottom:1px solid var(--line)}
+details:first-of-type{border-top:1px solid var(--line)}
+summary{
+  cursor:pointer;list-style:none;padding:22px 46px 22px 0;position:relative;
+  font-weight:600;font-size:1.04rem;
+}
+summary::-webkit-details-marker{display:none}
+summary::after{
+  content:"+";position:absolute;right:6px;top:20px;
+  font-family:var(--mono);font-size:1.25rem;color:var(--floor);transition:transform .2s;
+}
+details[open] summary::after{transform:rotate(45deg)}
+details p{color:var(--muted);font-size:.97rem;max-width:74ch;padding-bottom:8px}
+
+/* final cta */
+.final{text-align:center;padding:104px 0}
+.final h2{max-width:18ch;margin:0 auto 22px}
+.final .lede{margin:0 auto 32px}
+
+
+/* join form */
+.join-form{
+  display:grid;grid-template-columns:1fr 1fr;gap:20px 22px;
+  max-width:640px;margin:8px auto 0;text-align:left;
+}
+.field{display:flex;flex-direction:column;gap:7px}
+.field--wide{grid-column:1 / -1}
+.join-form label{
+  font-family:var(--mono);font-size:.66rem;text-transform:uppercase;
+  letter-spacing:.16em;color:rgba(238,241,234,.6);
+}
+.join-form input,.join-form select{
+  font-family:var(--body);font-size:1rem;color:var(--paper);
+  background:transparent;border:0;border-bottom:1.5px solid rgba(238,241,234,.28);
+  padding:9px 2px;border-radius:0;appearance:none;transition:border-color .15s;
+}
+.join-form select{
+  background-image:linear-gradient(45deg,transparent 50%,rgba(238,241,234,.6) 50%),linear-gradient(135deg,rgba(238,241,234,.6) 50%,transparent 50%);
+  background-position:calc(100% - 12px) 18px,calc(100% - 7px) 18px;
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:26px;
+}
+.join-form select option{background:var(--ink);color:var(--paper)}
+.join-form input:focus,.join-form select:focus{outline:0;border-bottom-color:var(--floor)}
+.join-form input:focus-visible,.join-form select:focus-visible{outline:0}
+.join-form .invalid{border-bottom-color:var(--floor)}
+.form-foot{flex-direction:row;align-items:center;gap:20px;flex-wrap:wrap;margin-top:8px}
+.form-note{font-family:var(--mono);font-size:.7rem;color:rgba(238,241,234,.5);margin:0;max-width:32ch;line-height:1.5}
+.form-error{
+  grid-column:1 / -1;margin:0;font-family:var(--mono);font-size:.74rem;color:var(--floor);
+}
+.form-done{max-width:640px;margin:34px auto 0;padding:34px 30px;border:1.5px solid var(--floor);text-align:left}
+.form-done h3{margin-bottom:10px}
+.form-done p{color:rgba(238,241,234,.7);margin:0}
+
+/* footer */
+footer{border-top:1px solid var(--line);padding:44px 0 56px}
+.foot{display:flex;flex-wrap:wrap;gap:28px;justify-content:space-between;align-items:flex-start}
+.foot-links{display:flex;flex-wrap:wrap;gap:24px}
+.foot-links a{font-size:.88rem;color:var(--muted);text-decoration:none}
+.foot-links a:hover{color:var(--ink)}
+.foot-fine{font-family:var(--mono);font-size:.7rem;color:var(--muted);letter-spacing:.03em}
+
+@media(max-width:920px){
+  .cols-3,.band .cols-2,.bios{grid-template-columns:1fr}
+  .readout{grid-template-columns:1fr}
+  section{padding:64px 0}
+  .hero{padding:64px 0 0}
+  .diagram-fig{padding:12px}
+  .join-form{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="#top">
+      <svg class="logo-mark" width="26" height="22" viewBox="0 0 26 22" aria-hidden="true">
+        <rect x="0"  y="16" width="7" height="3" fill="#D6246E"></rect>
+        <rect x="9"  y="10" width="7" height="3" fill="#D6246E"></rect>
+        <rect x="18" y="3"  width="7" height="3" fill="#D6246E"></rect>
+      </svg>
+      <span class="logo-text">SEGMENTA</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#nosdk">Why no SDK</a>
+      <a href="#compare">Compare</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <a class="btn btn-primary" href="#join">Join</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Bid floor optimisation for mobile apps &amp; games</p>
+      <h1>Bid floor optimisation without the SDK.</h1>
+      <p class="lede">Segmenta connects to your mediator, groups your players into eCPM value buckets, and optimises bid floors through the mediator's own APIs. No SDK to integrate. No release to ship. No risk to your crash-free rate.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#join">Join <span class="btn-arrow">→</span></a>
+        <a class="btn btn-ghost" href="#how">See how it works</a>
+      </div>
+      <div class="trust">
+        <span>Works with your existing mediation setup</span>
+        <span>·</span>
+        <span>Read-only until you say otherwise</span>
+        <span>·</span>
+        <span>No code in your build</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIGNATURE CHART -->
+  <div class="ladder">
+    <div class="wrap">
+      <div class="ladder-head">
+        <div class="ladder-title">One floor for everyone, or one floor per bucket</div>
+        <div class="toggle" role="group" aria-label="Bid floor strategy">
+          <button id="btn-flat" aria-pressed="true">Single floor</button>
+          <button id="btn-seg" aria-pressed="false">Segmenta floors</button>
+        </div>
+      </div>
+
+      <div class="chart-frame">
+        <div class="chart">
+          <svg viewBox="0 0 1000 330" role="img" aria-label="Chart showing share of users across ten eCPM buckets, with the bid floor drawn either as a single flat line or as a staircase rising with bucket value.">
+            <line class="axis-tick" x1="56" y1="266" x2="952" y2="266"></line>
+            <g id="plot"></g>
+            <text class="axis-label" x="56" y="26">Share of users</text>
+            <text class="axis-label" x="952" y="26" text-anchor="end">Bid floor ($)</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="readout">
+        <div class="stat">
+          <div class="stat-k">Ad ARPDAU index</div>
+          <div class="stat-v" id="s1">100.0</div>
+          <div class="stat-d" id="d1">Baseline</div>
+        </div>
+        <div class="stat">
+          <div class="stat-k">Fill rate</div>
+          <div class="stat-v" id="s2">94.1%</div>
+          <div class="stat-d" id="d2">Every request priced the same</div>
+        </div>
+        <div class="stat">
+          <div class="stat-k">Impressions per DAU</div>
+          <div class="stat-v" id="s3">18.4</div>
+          <div class="stat-d" id="d3">Unchanged</div>
+        </div>
+      </div>
+      <p class="caption">Illustrative model. Your own figures come from your mediation history, not ours.</p>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <!-- PROBLEM -->
+  <section id="problem">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">The problem</p>
+        <h2>Bid floors are the last big lever nobody is pulling properly.</h2>
+        <p class="lede">In-app bidding was supposed to make floors irrelevant. It didn't. Bid shading is everywhere, and most networks treat your floor as a signal about what the impression is worth. Set it too low and you leave money on every high-value impression. Set it too high and you lose fill on the users who were never going to pay much anyway.</p>
+        <p class="lede">The right answer is different for every player. The problem is that finding it has always meant putting somebody else's code in your game.</p>
+      </div>
+      <div class="cols-3">
+        <div class="cell">
+          <h3>One floor for everyone</h3>
+          <p>Your whale and your never-payer see the same floor, in the same country group, at the same price.</p>
+        </div>
+        <div class="cell">
+          <h3>Optimisation you can't ship</h3>
+          <p>The vendor with the answer needs an SDK, a QA cycle and a store submission. By the time it's live, the quarter's gone.</p>
+        </div>
+        <div class="cell">
+          <h3>Insight you can't act on</h3>
+          <p>Your mediation dashboard tells you your average eCPM. It doesn't tell you which players generate it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- HOW IT WORKS (DIAGRAM) -->
+  <section id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">How it works</p>
+        <h2>A closed loop that never enters your build.</h2>
+        <p class="lede">Segmenta is plug and play. Paste in an API key and it starts working — there is no integration to schedule, no build to ship, and nothing for your engineers to pick up.</p>
+      </div>
+
+      <figure class="diagram-fig">
+        <img class="diagram-img"
+             src="https://d8j0ntlcm91z4.cloudfront.net/user_35U1yA3ebZq10WPG5lWaD6DW7oh/hf_20260827_111643_5f8cbe23-43c2-4bc4-9457-183bd5a9d1c4.png"
+             alt="Flow diagram. Your app sits inside a dashed boundary marked no SDK, no code, no release, and exchanges ad requests and served ads with your mediator. Below, a magenta-outlined Segmenta panel receives impression-level revenue data from the mediator and pushes bid floors back. Inside the panel, three steps run left to right: 01 Connect, 02 Segment, 03 Optimise."
+             width="1920" height="1080" loading="lazy">
+      </figure>
+
+      <div class="step-note">
+        <p>If you don't like what you see, you disconnect an API key. There's nothing to remove from your game, because we were never in it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY NO SDK -->
+  <section class="band" id="nosdk">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Why no SDK</p>
+        <h2>"No SDK" isn't a limitation. It's the product.</h2>
+      </div>
+      <div class="cols-2">
+        <div class="cell">
+          <h3>Live in a day, not a quarter</h3>
+          <p>No integration ticket. No engineer pulled off the roadmap. No QA pass. No app store review. No waiting for a new build to reach enough users before your optimisation learns anything.</p>
+        </div>
+        <div class="cell">
+          <h3>Zero risk to the thing you actually care about</h3>
+          <p>Third-party SDKs are a leading cause of ANRs and cold-start regressions in mobile games. A monetisation gain that costs you a third of a point on your crash-free rate isn't a gain. Segmenta adds no bytes, no threads and no network calls to your app.</p>
+        </div>
+        <div class="cell">
+          <h3>We optimise your history, not just your future</h3>
+          <p>Because we read your mediation data rather than generate it, Segmenta can analyse impressions that already happened. You get your first bucket analysis from data you already own — before you've agreed to change anything.</p>
+        </div>
+        <div class="cell">
+          <h3>We never touch the auction</h3>
+          <p>Segmenta isn't in your waterfall, isn't a demand partner and doesn't take a position in your ad calls. Your mediation setup stays your mediation setup. We change the numbers in it, not the plumbing under it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARE -->
+  <section id="compare">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Compare</p>
+        <h2>Do you actually need an SDK to optimise bid floors?</h2>
+        <p class="lede">For decisions that depend on what a player is doing right now, yes. For pricing your inventory, no — and that's the difference.</p>
+      </div>
+
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              <th scope="col" class="col-us">Segmenta</th>
+              <th scope="col">SDK-based optimisers</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Integration</th><td class="col-us">Mediator API keys</td><td>SDK in your game</td></tr>
+            <tr><th scope="row">Sits inside the ad call</th><td class="col-us">No</td><td>Yes — loads and shows ads</td></tr>
+            <tr><th scope="row">Time to live</th><td class="col-us">Same day</td><td>Weeks + release cycle</td></tr>
+            <tr><th scope="row">Crash / ANR risk</th><td class="col-us">None</td><td>Non-zero</td></tr>
+            <tr><th scope="row">Works on historic data</th><td class="col-us">Yes</td><td>No</td></tr>
+            <tr><th scope="row">Mediation coverage</th><td class="col-us">All major mediators</td><td>Typically one mediator</td></tr>
+            <tr><th scope="row">Decision granularity</th><td class="col-us">eCPM bucket &amp; ad unit</td><td>Per player, per session</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:38px">
+        <a class="btn btn-pink" href="#join">Join <span class="btn-arrow">→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- TEAM -->
+  <section id="team">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Who built it</p>
+        <h2>Built by ad monetisation veterans.</h2>
+        <p class="lede">25 years and over $1bn in ad revenue between them.</p>
+      </div>
+
+      <div class="bios">
+        <div class="bio">
+          <h3>Dilpesh Parmar</h3>
+          <div class="bio-role">Co-founder</div>
+          <p>In ad optimisation since 2008. Dilpesh has led ad monetisation at Outfit7, Kwalee, Shazam and IQzone, and was part of the team behind Outfit7's billion-dollar exit. He co-founded Aequus Ads, and advises and invests in companies across the adtech ecosystem.</p>
+        </div>
+        <div class="bio">
+          <h3>Felix Braberg</h3>
+          <div class="bio-role">Co-founder</div>
+          <p>A decade optimising mobile game monetisation across 55+ games and apps, working with studios, ad networks and DSPs. Felix writes the Mobile Ad Revenue newsletter and co-hosts Two &amp; a Half Gamers, where he has spent years making the argument Segmenta is built on: average eCPM hides what each impression is actually worth.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Questions</p>
+        <h2>The things ad ops teams ask first.</h2>
+      </div>
+      <div>
+        <details open>
+          <summary>Do I really not have to integrate anything?</summary>
+          <p>Correct. Segmenta reads your mediator's user-level ad revenue API and writes back through its ad unit management API. Both are server-to-server. Nothing changes in your app binary.</p>
+        </details>
+        <details>
+          <summary>How can you optimise per user without being in the app?</summary>
+          <p>We don't optimise per user in real time — we optimise per value bucket, and route buckets to ad units whose floors we control. For floor pricing this captures most of the available uplift, because the underlying signal (what a player is worth to advertisers) is stable across sessions. Decisions that genuinely depend on in-session state, like interstitial cooldowns, need an SDK, and we're honest that we don't do those.</p>
+        </details>
+        <details>
+          <summary>Which mediators do you support?</summary>
+          <p>Any mediator that exposes user-level ad revenue data and programmatic ad unit management. If you're not sure whether yours qualifies, ask us — the answer takes about a minute.</p>
+        </details>
+        <details>
+          <summary>What if it doesn't work?</summary>
+          <p>The A/B test tells you, in your own dashboard, in your own numbers. Then you revoke the API key. There is no removal project.</p>
+        </details>
+        <details>
+          <summary>Do you take a cut of my ad revenue as a demand partner?</summary>
+          <p>No. We are not in your auction and we don't sell your inventory.</p>
+        </details>
+        <details>
+          <summary>How much data do you need before recommendations are useful?</summary>
+          <p>Roughly 30 days of impression-level history, or 14 days at higher volumes. Where historic data is available through the API, we can often produce a first analysis immediately.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- JOIN / LEAD FORM -->
+  <section class="band final" id="join">
+    <div class="wrap">
+      <p class="eyebrow" style="justify-content:center">Join</p>
+      <h2>Find out what your buckets look like.</h2>
+      <p class="lede">Tell us where your ad revenue comes from and we'll walk you through a full eCPM bucket breakdown of your last 90 days. No integration, no commitment.</p>
+
+      <form class="join-form" id="join-form" novalidate>
+        <div class="field">
+          <label for="jf-name">Name</label>
+          <input id="jf-name" name="name" type="text" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="jf-email">Work email</label>
+          <input id="jf-email" name="email" type="email" autocomplete="email" required>
+        </div>
+        <div class="field">
+          <label for="jf-company">Studio or company</label>
+          <input id="jf-company" name="company" type="text" autocomplete="organization" required>
+        </div>
+        <div class="field">
+          <label for="jf-mau">Monthly active users</label>
+          <select id="jf-mau" name="mau" required>
+            <option value="">Select a range</option>
+            <option>Under 100k</option>
+            <option>100k – 1M</option>
+            <option>1M – 10M</option>
+            <option>Over 10M</option>
+          </select>
+        </div>
+        <div class="field field--wide">
+          <label for="jf-med">Mediation setup</label>
+          <select id="jf-med" name="mediation" required>
+            <option value="">Select one</option>
+            <option>One primary mediator</option>
+            <option>More than one mediator</option>
+            <option>Not sure yet</option>
+          </select>
+        </div>
+        <div class="field field--wide form-foot">
+          <button class="btn btn-pink" type="submit">Join <span class="btn-arrow">→</span></button>
+          <p class="form-note">We reply within one working day. No newsletter, no drip sequence.</p>
+        </div>
+        <p class="form-error" id="jf-error" role="alert" hidden></p>
+      </form>
+
+      <div class="form-done" id="jf-done" hidden>
+        <h3>You're on the list.</h3>
+        <p>We'll be in touch at the address you gave us within one working day.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div>
+      <a class="logo" href="#top" style="margin-bottom:10px">
+        <svg class="logo-mark" width="26" height="22" viewBox="0 0 26 22" aria-hidden="true">
+          <rect x="0" y="16" width="7" height="3" fill="#D6246E"></rect>
+          <rect x="9" y="10" width="7" height="3" fill="#D6246E"></rect>
+          <rect x="18" y="3" width="7" height="3" fill="#D6246E"></rect>
+        </svg>
+        <span class="logo-text">SEGMENTA</span>
+      </a>
+      <div class="foot-fine">Bid floor optimisation for mobile apps and games.</div>
+    </div>
+    <div class="foot-links">
+      <a href="#how">How it works</a>
+      <a href="#nosdk">Why no SDK</a>
+      <a href="#compare">Compare</a>
+      <a href="#faq">FAQ</a>
+      <a href="#join">Join</a>
+    </div>
+    <div class="foot-fine">© 2026 Segmenta AI<br>Privacy · Terms</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var buckets = [
+    {label:"$1–5",    users:31.0, floor:0.9},
+    {label:"$6–10",   users:21.0, floor:1.6},
+    {label:"$11–25",  users:15.5, floor:2.8},
+    {label:"$26–50",  users:11.0, floor:4.5},
+    {label:"$51–100", users:7.5,  floor:7.0},
+    {label:"$101–250",users:5.0,  floor:10.0},
+    {label:"$251–500",users:3.4,  floor:14.0},
+    {label:"$501–750",users:2.4,  floor:18.5},
+    {label:"$751–1k", users:1.6,  floor:23.5},
+    {label:"$1000+",  users:1.6,  floor:30.0}
+  ];
+  var FLAT = 3.0, SCALE = 32, BASE = 266, TOP = 56, H = BASE - TOP;
+  var L = 56, R = 952, slot = (R - L) / buckets.length;
+  var NS = "http://www.w3.org/2000/svg";
+  var plot = document.getElementById("plot");
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function y(v){ return BASE - (v / SCALE) * H; }
+  function el(n, attrs, cls){
+    var e = document.createElementNS(NS, n);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (cls) e.setAttribute("class", cls);
+    return e;
+  }
+
+  var segs = [];
+  buckets.forEach(function(b, i){
+    var cx = L + slot * i + slot / 2;
+    var g = el("g", {}, "bar-g");
+
+    var bh = Math.max(2, (b.users / SCALE) * H);
+    var bar = el("rect", {x: cx - 21, y: BASE - bh, width: 42, height: bh}, "bar");
+    if (!reduce){
+      bar.style.transform = "scaleY(0)";
+      bar.style.transition = "transform .6s cubic-bezier(.2,.7,.3,1) " + (i * 45 + 120) + "ms";
+    }
+    g.appendChild(bar);
+
+    var seg = el("rect", {x: cx - 30, y: y(FLAT), width: 60, height: 3.5}, "floor-seg");
+    segs.push(seg);
+    g.appendChild(seg);
+
+    var lab = el("text", {x: cx, y: BASE + 20, "text-anchor": "middle"}, "axis-label");
+    lab.textContent = b.label;
+    g.appendChild(lab);
+
+    var pct = el("text", {x: cx, y: BASE - bh - 8, "text-anchor": "middle"}, "axis-label");
+    pct.textContent = b.users.toFixed(1) + "%";
+    g.appendChild(pct);
+
+    plot.appendChild(g);
+    requestAnimationFrame(function(){ bar.style.transform = "scaleY(1)"; });
+  });
+
+  var MODES = {
+    flat: {s1:100.0, s2:94.1, s3:18.4, d1:"Baseline", d2:"Every request priced the same", d3:"Unchanged"},
+    seg:  {s1:113.8, s2:92.8, s3:18.1, d1:"+13.8 vs baseline", d2:"−1.3pt, inside your guardrail", d3:"−0.3 per user"}
+  };
+
+  var fmt = {s1:function(v){return v.toFixed(1)}, s2:function(v){return v.toFixed(1)+"%"}, s3:function(v){return v.toFixed(1)}};
+  var current = {s1:100.0, s2:94.1, s3:18.4};
+
+  function animateTo(target){
+    ["s1","s2","s3"].forEach(function(k){
+      var from = current[k], to = target[k], t0 = performance.now(), dur = reduce ? 0 : 550;
+      var node = document.getElementById(k);
+      function tick(now){
+        var p = dur ? Math.min(1, (now - t0) / dur) : 1;
+        var e = 1 - Math.pow(1 - p, 3);
+        node.textContent = fmt[k](from + (to - from) * e);
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+      current[k] = to;
+    });
+    document.getElementById("d1").textContent = target.d1;
+    document.getElementById("d2").textContent = target.d2;
+    document.getElementById("d3").textContent = target.d3;
+    document.getElementById("d1").className = "stat-d" + (target === MODES.seg ? " up" : "");
+  }
+
+  var bFlat = document.getElementById("btn-flat"), bSeg = document.getElementById("btn-seg");
+
+  function setMode(mode){
+    var isSeg = mode === "seg";
+    bFlat.setAttribute("aria-pressed", String(!isSeg));
+    bSeg.setAttribute("aria-pressed", String(isSeg));
+    segs.forEach(function(s, i){
+      s.setAttribute("y", y(isSeg ? buckets[i].floor : FLAT));
+    });
+    animateTo(isSeg ? MODES.seg : MODES.flat);
+  }
+
+  bFlat.addEventListener("click", function(){ setMode("flat"); });
+  bSeg.addEventListener("click", function(){ setMode("seg"); });
+})();
+</script>
+
+<script>
+(function(){
+  var form = document.getElementById("join-form");
+  if (!form) return;
+  var err  = document.getElementById("jf-error");
+  var done = document.getElementById("jf-done");
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    err.hidden = true;
+
+    var fields = form.querySelectorAll("input, select");
+    var firstBad = null;
+    Array.prototype.forEach.call(fields, function(f){
+      var ok = f.value.trim() !== "" && (f.type !== "email" || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.value));
+      f.classList.toggle("invalid", !ok);
+      if (!ok && !firstBad) firstBad = f;
+    });
+
+    if (firstBad){
+      err.textContent = "Please complete every field with a valid work email.";
+      err.hidden = false;
+      firstBad.focus();
+      return;
+    }
+
+    var payload = {};
+    Array.prototype.forEach.call(fields, function(f){ payload[f.name] = f.value.trim(); });
+
+    /* ---------------------------------------------------------------
+       TODO: wire this to your real endpoint before launch.
+       Replace the block below with e.g.
+
+       fetch("https://your-endpoint.example/leads", {
+         method: "POST",
+         headers: {"Content-Type": "application/json"},
+         body: JSON.stringify(payload)
+       }).then(showDone).catch(showError);
+
+       Until then the submission is logged locally and nothing is sent.
+    --------------------------------------------------------------- */
+    console.log("Segmenta lead (not yet sent anywhere):", payload);
+
+    form.hidden = true;
+    done.hidden = false;
+    done.setAttribute("tabindex", "-1");
+    done.focus();
+  });
+})();
+</script>
+</body>
+</html>
