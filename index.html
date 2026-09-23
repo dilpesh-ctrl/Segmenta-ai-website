@@ -209,6 +209,7 @@ details p{color:var(--muted);font-size:.97rem;max-width:74ch;padding-bottom:8px}
 
 
 /* join form */
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 .join-form{
   display:grid;grid-template-columns:1fr 1fr;gap:20px 22px;
   max-width:640px;margin:8px auto 0;text-align:left;
@@ -570,6 +571,10 @@ footer{border-top:1px solid var(--line);padding:44px 0 56px}
             <option>Not sure yet</option>
           </select>
         </div>
+        <div class="hp" aria-hidden="true">
+          <label for="jf-website">Website</label>
+          <input id="jf-website" name="website" type="text" tabindex="-1" autocomplete="off">
+        </div>
         <div class="field field--wide form-foot">
           <button class="btn btn-pink" type="submit">Join <span class="btn-arrow">→</span></button>
           <p class="form-note">We reply within one working day. No newsletter, no drip sequence.</p>
@@ -605,6 +610,7 @@ footer{border-top:1px solid var(--line);padding:44px 0 56px}
       <a href="#compare">Compare</a>
       <a href="#faq">FAQ</a>
       <a href="#join">Join</a>
+      <a href="mailto:hello@segmenta-ai.com">hello@segmenta-ai.com</a>
     </div>
     <div class="foot-fine">© 2026 Segmenta AI<br>Privacy · Terms</div>
   </div>
@@ -713,19 +719,53 @@ footer{border-top:1px solid var(--line);padding:44px 0 56px}
 
 <script>
 (function(){
+  /* =================================================================
+     GOOGLE FORM CONFIG  — paste your six values here.
+
+     formId:  from your live form URL
+              https://docs.google.com/forms/d/e/THIS_PART/viewform
+
+     fields:  from a pre-filled link (Form editor → ⋮ → Get pre-filled
+              link → fill dummy answers → Get link → copy). The copied
+              URL contains entry.123456789=value pairs — one per question,
+              in the order the questions appear.
+     ================================================================= */
+  var GOOGLE_FORM = {
+    formId: "1FAIpQLSfwe5TVcl36eYyRMRBeNL5d5MMeVlP2bTlZIOMWM7xRDTatiA",
+    fields: {
+      name:      "entry.316915847",   /* Name                 */
+      email:     "entry.1517301153",  /* Work email           */
+      company:   "entry.1874975341",  /* Studio or company    */
+      mau:       "entry.1242379819",  /* Monthly active users */
+      mediation: "entry.280397123"    /* Mediation setup      */
+    }
+  };
+
   var form = document.getElementById("join-form");
   if (!form) return;
   var err  = document.getElementById("jf-error");
   var done = document.getElementById("jf-done");
+  var hp   = document.getElementById("jf-website");
+
+  function showDone(){
+    form.hidden = true;
+    done.hidden = false;
+    done.setAttribute("tabindex", "-1");
+    done.focus();
+  }
 
   form.addEventListener("submit", function(e){
     e.preventDefault();
     err.hidden = true;
 
-    var fields = form.querySelectorAll("input, select");
+    /* honeypot: bots fill every field, humans never see this one */
+    if (hp && hp.value !== ""){ showDone(); return; }
+
+    var fields = form.querySelectorAll("input:not(#jf-website), select");
     var firstBad = null;
     Array.prototype.forEach.call(fields, function(f){
-      var ok = f.value.trim() !== "" && (f.type !== "email" || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.value));
+      var ok = f.value.trim() !== "" &&
+               (f.type !== "email" || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.value));
       f.classList.toggle("invalid", !ok);
       if (!ok && !firstBad) firstBad = f;
     });
@@ -740,24 +780,26 @@ footer{border-top:1px solid var(--line);padding:44px 0 56px}
     var payload = {};
     Array.prototype.forEach.call(fields, function(f){ payload[f.name] = f.value.trim(); });
 
-    /* ---------------------------------------------------------------
-       TODO: wire this to your real endpoint before launch.
-       Replace the block below with e.g.
+    if (GOOGLE_FORM.formId.indexOf("PASTE") !== -1){
+      console.warn("Google Form not configured yet. Lead was not sent:", payload);
+      showDone();
+      return;
+    }
 
-       fetch("https://your-endpoint.example/leads", {
-         method: "POST",
-         headers: {"Content-Type": "application/json"},
-         body: JSON.stringify(payload)
-       }).then(showDone).catch(showError);
+    var body = new URLSearchParams();
+    Object.keys(GOOGLE_FORM.fields).forEach(function(k){
+      if (payload[k] !== undefined) body.append(GOOGLE_FORM.fields[k], payload[k]);
+    });
 
-       Until then the submission is logged locally and nothing is sent.
-    --------------------------------------------------------------- */
-    console.log("Segmenta lead (not yet sent anywhere):", payload);
-
-    form.hidden = true;
-    done.hidden = false;
-    done.setAttribute("tabindex", "-1");
-    done.focus();
+    /* Google Forms sends no CORS headers, so the response is opaque:
+       the submission lands, but the browser will not let us read the
+       result. Treat dispatch as success. */
+    fetch("https://docs.google.com/forms/d/e/" + GOOGLE_FORM.formId + "/formResponse", {
+      method: "POST",
+      mode: "no-cors",
+      headers: {"Content-Type": "application/x-www-form-urlencoded"},
+      body: body.toString()
+    }).then(showDone).catch(showDone);
   });
 })();
 </script>
