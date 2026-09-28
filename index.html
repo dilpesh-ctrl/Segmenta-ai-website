@@ -183,8 +183,13 @@ tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
 /* team */
 .bios{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
 .bio{background:var(--paper);padding:34px 30px;border-top:3px solid var(--floor)}
+.bio-head{display:flex;align-items:center;gap:18px;margin-bottom:18px}
+.bio-photo{
+  width:82px;height:82px;flex:none;border-radius:50%;object-fit:cover;
+  background:var(--paper-2);filter:grayscale(1) contrast(1.04);
+}
 .bio h3{font-size:1.45rem;margin-bottom:6px}
-.bio-role{font-family:var(--mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.16em;color:var(--muted);margin-bottom:18px}
+.bio-role{font-family:var(--mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.16em;color:var(--muted);margin:0}
 .bio p{color:var(--muted);font-size:.96rem;margin:0}
 
 /* faq */
@@ -481,13 +486,23 @@ footer{border-top:1px solid var(--line);padding:44px 0 56px}
 
       <div class="bios">
         <div class="bio">
-          <h3>Dilpesh Parmar</h3>
-          <div class="bio-role">Co-founder</div>
+          <div class="bio-head">
+            <img class="bio-photo" src="assets/dilpesh-parmar.png" alt="Dilpesh Parmar" width="164" height="164" loading="lazy">
+            <div>
+              <h3>Dilpesh Parmar</h3>
+              <div class="bio-role">Co-founder</div>
+            </div>
+          </div>
           <p>In ad optimisation since 2008. Dilpesh has led ad monetisation at Outfit7, Kwalee, Shazam and IQzone, and was part of the team behind Outfit7's billion-dollar exit. He co-founded Aequus Ads, and advises and invests in companies across the adtech ecosystem.</p>
         </div>
         <div class="bio">
-          <h3>Felix Braberg</h3>
-          <div class="bio-role">Co-founder</div>
+          <div class="bio-head">
+            <img class="bio-photo" src="assets/felix-braberg.jpg" alt="Felix Braberg" width="164" height="164" loading="lazy">
+            <div>
+              <h3>Felix Braberg</h3>
+              <div class="bio-role">Co-founder</div>
+            </div>
+          </div>
           <p>A decade optimising mobile game monetisation across 55+ games and apps, working with studios, ad networks and DSPs. Felix writes the Mobile Ad Revenue newsletter and co-hosts Two &amp; a Half Gamers, where he has spent years making the argument Segmenta is built on: average eCPM hides what each impression is actually worth.</p>
         </div>
       </div>
