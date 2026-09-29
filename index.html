@@ -166,6 +166,25 @@ section{padding:88px 0}
 .band .cell p{color:rgba(238,241,234,.66)}
 .band .cell h3{margin-bottom:14px}
 
+
+/* case study */
+.cs-panel{border:1px solid var(--line);border-top:3px solid var(--floor);background:var(--paper-2)}
+.cs-top{display:flex;flex-wrap:wrap;align-items:center;gap:30px;padding:30px 34px;border-bottom:1px solid var(--line)}
+.cs-logo{display:block;height:44px;width:auto}
+.cs-logo-plate{background:#000;color:#fff;font-family:var(--mono);font-size:.8rem;padding:14px 20px;border-radius:2px;flex:none;display:inline-flex;align-items:center;min-height:44px}
+.cs-stats{display:flex;gap:46px;margin-left:auto;flex-wrap:wrap}
+.cs-fig{font-family:var(--display);font-variation-settings:"wdth" 108,"wght" 700;font-size:clamp(2.4rem,4.6vw,3.6rem);letter-spacing:-.04em;line-height:1;color:var(--floor)}
+.cs-cap{font-family:var(--mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin-top:8px}
+.cs-body{padding:32px 34px}
+.cs-body p{font-size:1rem;color:var(--ink-2)}
+.cs-tldr{font-family:var(--mono);font-size:.82rem;color:var(--muted);font-style:italic;line-height:1.6}
+.cs-quote{margin:26px 0;padding:22px 26px;border-left:3px solid var(--floor);background:var(--paper)}
+.cs-quote p{font-size:1.12rem;font-style:italic;margin:0 0 8px}
+.cs-attr{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;color:var(--muted);font-style:normal}
+.cs-cta{display:flex;flex-wrap:wrap;align-items:center;gap:18px;margin-top:28px;padding-top:26px;border-top:1px solid var(--line)}
+.cs-cta p{margin:0;font-weight:600;font-size:1.05rem}
+@media(max-width:700px){.cs-stats{margin-left:0;gap:32px}.cs-top,.cs-body{padding:24px 20px}}
+
 /* compare */
 .table-scroll{overflow-x:auto;border:1px solid var(--line)}
 table{border-collapse:collapse;width:100%;min-width:640px;background:var(--paper)}
@@ -285,6 +304,7 @@ footer{border-top:1px solid var(--line);padding:44px 0 56px}
     <nav class="nav-links">
       <a href="#how">How it works</a>
       <a href="#nosdk">Why no SDK</a>
+      <a href="#case-study">Case study</a>
       <a href="#compare">Compare</a>
       <a href="#faq">FAQ</a>
     </nav>
@@ -299,17 +319,17 @@ footer{border-top:1px solid var(--line);padding:44px 0 56px}
     <div class="wrap">
       <p class="eyebrow">Bid floor optimisation for mobile apps &amp; games</p>
       <h1>Bid floor optimisation without the SDK.</h1>
-      <p class="lede">Segmenta connects to your mediator, groups your players into eCPM value buckets, and optimises bid floors through the mediator's own APIs. No SDK to integrate. No release to ship. No risk to your crash-free rate.</p>
+      <p class="lede">Segmenta connects to your mediator, groups your players into eCPM value buckets, and optimises bid floors through the mediator's own APIs. No SDK to integrate. No mediation migration. No third-party code running in your game.</p>
       <div class="hero-cta">
         <a class="btn btn-primary" href="#join">Join <span class="btn-arrow">→</span></a>
         <a class="btn btn-ghost" href="#how">See how it works</a>
       </div>
       <div class="trust">
-        <span>Works with your existing mediation setup</span>
+        <span>Works inside your existing AppLovin MAX account</span>
         <span>·</span>
         <span>Read-only until you say otherwise</span>
         <span>·</span>
-        <span>No code in your build</span>
+        <span>No third-party SDK in your build</span>
       </div>
     </div>
   </div>
@@ -393,18 +413,18 @@ footer{border-top:1px solid var(--line);padding:44px 0 56px}
       <div class="sec-head">
         <p class="eyebrow">How it works</p>
         <h2>A closed loop that never enters your build.</h2>
-        <p class="lede">Segmenta is plug and play. Paste in an API key and it starts working — there is no integration to schedule, no build to ship, and nothing for your engineers to pick up.</p>
+        <p class="lede">Segmenta is plug and play. Paste in an API key, ship one app update, and that is the whole of your side of the work — no SDK, no mediation migration, and nothing for your engineers to maintain afterwards.</p>
       </div>
 
       <figure class="diagram-fig">
         <img class="diagram-img"
-             src="https://d8j0ntlcm91z4.cloudfront.net/user_35U1yA3ebZq10WPG5lWaD6DW7oh/hf_20260827_111643_5f8cbe23-43c2-4bc4-9457-183bd5a9d1c4.png"
-             alt="Flow diagram. Your app sits inside a dashed boundary marked no SDK, no code, no release, and exchanges ad requests and served ads with your mediator. Below, a magenta-outlined Segmenta panel receives impression-level revenue data from the mediator and pushes bid floors back. Inside the panel, three steps run left to right: 01 Connect, 02 Segment, 03 Optimise."
+             src="assets/how-it-works.png"
+             alt="Flow diagram. A phone running a game with a banner ad slot sits inside a dashed boundary marked no SDK, one app update, and exchanges ad requests and served ads with your mediator. Below, a magenta-outlined Segmenta panel receives impression-level revenue data from the mediator and pushes bid floors back. Inside the panel, three steps run left to right: 01 Connect, 02 Segment, 03 Optimise."
              width="1920" height="1080" loading="lazy">
       </figure>
 
       <div class="step-note">
-        <p>If you don't like what you see, you disconnect an API key. There's nothing to remove from your game, because we were never in it.</p>
+        <p>If you don't like what you see, you disconnect an API key. There's no SDK to rip out, because we never put one in your game.</p>
       </div>
     </div>
   </section>
@@ -419,11 +439,11 @@ footer{border-top:1px solid var(--line);padding:44px 0 56px}
       <div class="cols-2">
         <div class="cell">
           <h3>Live in a day, not a quarter</h3>
-          <p>No integration ticket. No engineer pulled off the roadmap. No QA pass. No app store review. No waiting for a new build to reach enough users before your optimisation learns anything.</p>
+          <p>No integration ticket. No SDK for QA to regression-test. No new dependency for your engineers to own. One app update and Segmenta is already learning from data you generated months ago.</p>
         </div>
         <div class="cell">
           <h3>Zero risk to the thing you actually care about</h3>
-          <p>Third-party SDKs are a leading cause of ANRs and cold-start regressions in mobile games. A monetisation gain that costs you a third of a point on your crash-free rate isn't a gain. Segmenta adds no bytes, no threads and no network calls to your app.</p>
+          <p>Third-party SDKs are a leading cause of ANRs and cold-start regressions in mobile games. A monetisation gain that costs you a third of a point on your crash-free rate isn't a gain. Segmenta puts no third-party SDK, no background threads and no extra network calls in your app.</p>
         </div>
         <div class="cell">
           <h3>We optimise your history, not just your future</h3>
@@ -436,6 +456,57 @@ footer{border-top:1px solid var(--line);padding:44px 0 56px}
       </div>
     </div>
   </section>
+
+  <!-- CASE STUDY -->
+  <section id="case-study">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Case study</p>
+        <h2>Nocturnal Games</h2>
+      </div>
+
+      <div class="cs-panel">
+        <div class="cs-top">
+          <span class="cs-logo-plate">
+            <img class="cs-logo" src="assets/nocturnal-games-logo.png" alt="Nocturnal Games" loading="lazy">
+          </span>
+          <div class="cs-stats">
+            <div>
+              <div class="cs-fig">+19%</div>
+              <div class="cs-cap">Android interstitial<br>Ad ARPDAU</div>
+            </div>
+            <div>
+              <div class="cs-fig">+22%</div>
+              <div class="cs-cap">iOS interstitial<br>Ad ARPDAU</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cs-body">
+          <p class="cs-tldr">TLDR: Easy set up, one app update, and interstitial Ad ARPDAU up 19% for Turkish studio Nocturnal.</p>
+
+          <p>The mobile ad monetization ecosystem keeps getting worse for publishers. Header bidding has quietly taken 10 to 20% of Ad ARPDAU out of publisher pockets in the last three years. We built Segmenta.ai to take some of it back. No SDK, no mediation migration.</p>
+
+          <p>Nocturnal has been running Segmenta's Easy Bid floors since May. <strong>Interstitial Ad ARPDAU is up 19% on Android and 22% on iOS</strong>, measured against a matched pre-launch baseline. The uplift showed up within days of switching on.</p>
+
+          <blockquote class="cs-quote">
+            <p>"Segmenta's bid floor solution was super easy to use and quick to get results."</p>
+            <div class="cs-attr">Ceyhun Taşçi, Nocturnal</div>
+          </blockquote>
+
+          <p><strong>What it costs you:</strong> one app update. No new networks, no SDK swap, no mediation migration, no change to your placements or frequency caps. It runs inside your existing MAX account.</p>
+
+          <p><strong>What Segmenta does:</strong> reads your live auction data and continuously recalibrates floors by country and format using a rolling window. We stop you from selling impressions for less than they're worth.</p>
+
+          <div class="cs-cta">
+            <a class="btn btn-pink" href="#join">Join for a 30-day free trial <span class="btn-arrow">→</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule">
 
   <!-- COMPARE -->
   <section id="compare">
@@ -456,12 +527,12 @@ footer{border-top:1px solid var(--line);padding:44px 0 56px}
             </tr>
           </thead>
           <tbody>
-            <tr><th scope="row">Integration</th><td class="col-us">Mediator API keys</td><td>SDK in your game</td></tr>
+            <tr><th scope="row">Integration</th><td class="col-us">Mediator API keys + one app update</td><td>SDK in your game</td></tr>
             <tr><th scope="row">Sits inside the ad call</th><td class="col-us">No</td><td>Yes — loads and shows ads</td></tr>
-            <tr><th scope="row">Time to live</th><td class="col-us">Same day</td><td>Weeks + release cycle</td></tr>
-            <tr><th scope="row">Crash / ANR risk</th><td class="col-us">None</td><td>Non-zero</td></tr>
+            <tr><th scope="row">Time to live</th><td class="col-us">One app update</td><td>SDK integration + release cycle</td></tr>
+            <tr><th scope="row">Crash / ANR risk</th><td class="col-us">None — no third-party SDK</td><td>Non-zero</td></tr>
             <tr><th scope="row">Works on historic data</th><td class="col-us">Yes</td><td>No</td></tr>
-            <tr><th scope="row">Mediation coverage</th><td class="col-us">All major mediators</td><td>Typically one mediator</td></tr>
+            <tr><th scope="row">Mediation coverage</th><td class="col-us">AppLovin MAX, more coming</td><td>Typically one mediator</td></tr>
             <tr><th scope="row">Decision granularity</th><td class="col-us">eCPM bucket &amp; ad unit</td><td>Per player, per session</td></tr>
           </tbody>
         </table>
@@ -520,8 +591,8 @@ footer{border-top:1px solid var(--line);padding:44px 0 56px}
       </div>
       <div>
         <details open>
-          <summary>Do I really not have to integrate anything?</summary>
-          <p>Correct. Segmenta reads your mediator's user-level ad revenue API and writes back through its ad unit management API. Both are server-to-server. Nothing changes in your app binary.</p>
+          <summary>Do I really not have to integrate an SDK?</summary>
+          <p>No SDK, correct. Segmenta reads your mediator's user-level ad revenue API and writes back through its ad unit management API, both server-to-server. Your side of it is one app update to expose the new ad units — after that there is no third-party code in your build to maintain, update or debug.</p>
         </details>
         <details>
           <summary>How can you optimise per user without being in the app?</summary>
@@ -529,7 +600,7 @@ footer{border-top:1px solid var(--line);padding:44px 0 56px}
         </details>
         <details>
           <summary>Which mediators do you support?</summary>
-          <p>Any mediator that exposes user-level ad revenue data and programmatic ad unit management. If you're not sure whether yours qualifies, ask us — the answer takes about a minute.</p>
+          <p>AppLovin MAX today, with more mediators coming. If you're on a different platform, tell us which one — it helps us decide what to build next, and we'll let you know when it's ready.</p>
         </details>
         <details>
           <summary>What if it doesn't work?</summary>
@@ -624,6 +695,7 @@ footer{border-top:1px solid var(--line);padding:44px 0 56px}
     <div class="foot-links">
       <a href="#how">How it works</a>
       <a href="#nosdk">Why no SDK</a>
+      <a href="#case-study">Case study</a>
       <a href="#compare">Compare</a>
       <a href="#faq">FAQ</a>
       <a href="#join">Join</a>
